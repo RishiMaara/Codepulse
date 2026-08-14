@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useAuthStore } from "../store/auth.store";
 import { useToastStore } from "../store/toast.store";
-import { X, Save, User, GitBranch, Code2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { X, Save, CheckCircle2, AlertCircle } from "lucide-react";
+import ThemeToggle from "./ThemeToggle";
 
 export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { user, updateProfile } = useAuthStore();
@@ -21,15 +22,12 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean; on
     }
   }, [user, isOpen]);
 
-  // Handle escape key to close
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === "Escape") onClose();
     };
-    if (isOpen) {
-      window.addEventListener('keydown', handleEscape);
-    }
-    return () => window.removeEventListener('keydown', handleEscape);
+    if (isOpen) window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
@@ -45,12 +43,12 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean; on
         leetcodeUsername: leetcode,
         githubUsername: github,
       });
-      setSuccess("Profile updated! Syncing your data...");
+      setSuccess("Profile settings saved successfully!");
       toast("Profile saved — syncing your platforms", "success");
       setTimeout(() => {
         setSuccess("");
         onClose();
-      }, 2000);
+      }, 1500);
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to update profile. Please try again.");
     } finally {
@@ -58,144 +56,284 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean; on
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-200/90 backdrop-blur-md transition-opacity duration-300">
-      {/* Modal Container */}
-      <div 
-        className="glass-panel relative w-full max-w-lg overflow-hidden neon-border"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Animated Background Orbs */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none rounded-2xl z-0">
-          <div className="absolute -top-32 -right-32 w-80 h-80 bg-brand-500/20 rounded-full blur-3xl animate-pulse-slow" />
-          <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }} />
-        </div>
+  const inputStyle: React.CSSProperties = {
+    width: "100%",
+    padding: "13px 16px",
+    borderRadius: "14px",
+    border: "1.5px solid var(--border-color, #e2e8f0)",
+    background: "var(--bg-secondary, #f8fafc)",
+    fontSize: "0.92rem",
+    color: "var(--text-primary, #0f172a)",
+    outline: "none",
+    fontFamily: "var(--font-family)",
+    boxSizing: "border-box",
+    transition: "all 0.2s ease",
+  };
 
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 100,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "20px",
+        background: "rgba(0, 0, 0, 0.65)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: "100%",
+          maxWidth: "520px",
+          background: "var(--bg-card, #ffffff)",
+          borderRadius: "24px",
+          boxShadow: "0 24px 64px rgba(0, 0, 0, 0.35)",
+          border: "1px solid var(--border-color, #222740)",
+          overflow: "hidden",
+          animation: "modalFadeIn 0.25s ease-out",
+        }}
+      >
         {/* Header */}
-        <div className="relative z-10 flex justify-between items-start p-8 border-b border-white/5 bg-dark-100/50">
-          <div>
-            <h2 className="text-3xl font-bold text-gradient tracking-tight">
-              Profile Settings
-            </h2>
-            <p className="text-sm text-gray-400 mt-2 font-medium">Manage your identity and connected platforms.</p>
+        <div
+          style={{
+            padding: "24px 30px",
+            borderBottom: "1px solid var(--border-color, #222740)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            background: "var(--bg-secondary, #fafbff)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+            <img
+              src="/icons/key.webp"
+              alt="Settings"
+              width={40}
+              height={40}
+              style={{ filter: "drop-shadow(0 4px 10px rgba(99,102,241,0.3))" }}
+            />
+            <div>
+              <h2 style={{ fontSize: "1.25rem", fontWeight: 900, color: "var(--text-primary, #0f172a)", margin: "0 0 2px" }}>
+                Account Settings
+              </h2>
+              <p style={{ fontSize: "0.82rem", color: "var(--text-secondary, #64748b)", margin: 0 }}>
+                Configure your profile & connected coding accounts
+              </p>
+            </div>
           </div>
-          <button 
-            onClick={onClose} 
-            className="group p-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/10 text-gray-400 hover:text-white transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-brand-500/50"
-            aria-label="Close modal"
+          <button
+            onClick={onClose}
+            style={{
+              background: "var(--bg-card, #f1f5f9)",
+              border: "1px solid var(--border-color, #e2e8f0)",
+              borderRadius: "10px",
+              width: "36px",
+              height: "36px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "var(--text-secondary, #64748b)",
+              cursor: "pointer",
+            }}
           >
-            <X size={22} className="group-hover:rotate-90 transition-transform duration-300" />
+            <X size={18} />
           </button>
         </div>
 
         {/* Content */}
-        <div className="relative z-10 p-8">
-          {/* Status Messages */}
-          <div className="min-h-[44px] mb-6">
-            {error && (
-              <div className="flex items-center gap-3 p-4 bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm rounded-xl font-medium">
-                <AlertCircle size={18} className="shrink-0" />
-                <p>{error}</p>
+        <div style={{ padding: "26px 30px" }}>
+          {error && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "12px 16px",
+                borderRadius: "12px",
+                background: "rgba(239, 68, 68, 0.12)",
+                border: "1px solid rgba(239, 68, 68, 0.3)",
+                color: "#ef4444",
+                fontSize: "0.85rem",
+                fontWeight: 700,
+                marginBottom: "20px",
+              }}
+            >
+              <AlertCircle size={16} />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {success && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "12px 16px",
+                borderRadius: "12px",
+                background: "rgba(16, 185, 129, 0.12)",
+                border: "1px solid rgba(16, 185, 129, 0.3)",
+                color: "#10b981",
+                fontSize: "0.85rem",
+                fontWeight: 700,
+                marginBottom: "20px",
+              }}
+            >
+              <CheckCircle2 size={16} />
+              <span>{success}</span>
+            </div>
+          )}
+
+          {/* Theme Appearance Option */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "14px 18px",
+              borderRadius: "16px",
+              background: "var(--bg-secondary, #f8fafc)",
+              border: "1px solid var(--border-color, #e2e8f0)",
+              marginBottom: "20px",
+            }}
+          >
+            <div>
+              <div style={{ fontSize: "0.92rem", fontWeight: 800, color: "var(--text-primary, #0f172a)" }}>
+                Theme Appearance
               </div>
-            )}
-            {success && (
-              <div className="flex items-center gap-3 p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm rounded-xl font-medium">
-                <CheckCircle2 size={18} className="shrink-0" />
-                <p>{success}</p>
+              <div style={{ fontSize: "0.75rem", color: "var(--text-secondary, #64748b)" }}>
+                Toggle between light & dark interface
               </div>
-            )}
+            </div>
+            <ThemeToggle showLabel={true} />
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Input Group: Full Name */}
-            <div className="group space-y-2">
-              <label className="text-sm font-semibold text-gray-300 group-focus-within:text-brand-400 transition-colors flex items-center gap-2">
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+            <div>
+              <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 800, color: "var(--text-primary, #334155)", marginBottom: "6px" }}>
                 Full Name
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-brand-400 transition-colors">
-                  <User size={20} />
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. Alex Developer"
+                style={inputStyle}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = "#6366f1";
+                  e.currentTarget.style.background = "var(--bg-card, white)";
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = "var(--border-color, #e2e8f0)";
+                  e.currentTarget.style.background = "var(--bg-secondary, #f8fafc)";
+                }}
+              />
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "6px" }}>
+                  <img src="/icons/notebook.webp" alt="" width={16} height={16} />
+                  <label style={{ fontSize: "0.84rem", fontWeight: 800, color: "var(--text-primary, #334155)" }}>
+                    LeetCode Username
+                  </label>
                 </div>
                 <input
                   type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="John Doe"
-                  className="w-full bg-dark-200/80 border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-white placeholder:text-gray-600 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:bg-dark-100 transition-all shadow-inner font-medium text-lg"
+                  value={leetcode}
+                  onChange={(e) => setLeetcode(e.target.value)}
+                  placeholder="e.g. neetcode"
+                  style={inputStyle}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = "#6366f1";
+                    e.currentTarget.style.background = "var(--bg-card, white)";
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = "var(--border-color, #e2e8f0)";
+                    e.currentTarget.style.background = "var(--bg-secondary, #f8fafc)";
+                  }}
+                />
+              </div>
+
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "6px" }}>
+                  <img src="/icons/puzzle.webp" alt="" width={16} height={16} />
+                  <label style={{ fontSize: "0.84rem", fontWeight: 800, color: "var(--text-primary, #334155)" }}>
+                    GitHub Username
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  value={github}
+                  onChange={(e) => setGithub(e.target.value)}
+                  placeholder="e.g. torvalds"
+                  style={inputStyle}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = "#6366f1";
+                    e.currentTarget.style.background = "var(--bg-card, white)";
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = "var(--border-color, #e2e8f0)";
+                    e.currentTarget.style.background = "var(--bg-secondary, #f8fafc)";
+                  }}
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {/* Input Group: LeetCode */}
-              <div className="group space-y-2">
-                <label className="text-sm font-semibold text-gray-300 group-focus-within:text-amber-400 transition-colors flex items-center gap-2">
-                  LeetCode Username
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-amber-400 transition-colors">
-                    <Code2 size={20} />
-                  </div>
-                  <input
-                    type="text"
-                    value={leetcode}
-                    onChange={(e) => setLeetcode(e.target.value)}
-                    placeholder="e.g. neetcode"
-                    className="w-full bg-dark-200/80 border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-white placeholder:text-gray-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:bg-dark-100 transition-all shadow-inner font-medium text-lg"
-                  />
-                </div>
-              </div>
-
-              {/* Input Group: GitHub */}
-              <div className="group space-y-2">
-                <label className="text-sm font-semibold text-gray-300 group-focus-within:text-purple-400 transition-colors flex items-center gap-2">
-                  GitHub Username
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-purple-400 transition-colors">
-                    <GitBranch size={20} />
-                  </div>
-                  <input
-                    type="text"
-                    value={github}
-                    onChange={(e) => setGithub(e.target.value)}
-                    placeholder="e.g. torvalds"
-                    className="w-full bg-dark-200/80 border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-white placeholder:text-gray-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 focus:bg-dark-100 transition-all shadow-inner font-medium text-lg"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="pt-6 mt-4 border-t border-white/5 flex gap-4">
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "12px", marginTop: "12px" }}>
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-4 bg-white/5 hover:bg-white/10 text-white font-semibold rounded-xl transition-all duration-300 flex-1 sm:flex-none sm:w-32 text-center"
+                style={{
+                  padding: "11px 20px",
+                  borderRadius: "12px",
+                  background: "var(--bg-secondary, #f1f5f9)",
+                  border: "1px solid var(--border-color, #e2e8f0)",
+                  color: "var(--text-secondary, #64748b)",
+                  fontSize: "0.88rem",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex-1 py-4 px-6 bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white font-bold rounded-xl hover-glow transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5 text-lg"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "11px 24px",
+                  borderRadius: "12px",
+                  background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                  color: "white",
+                  fontSize: "0.88rem",
+                  fontWeight: 800,
+                  border: "none",
+                  cursor: isLoading ? "not-allowed" : "pointer",
+                  boxShadow: "0 4px 14px rgba(99,102,241,0.35)",
+                }}
               >
-                {isLoading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    <span>Saving...</span>
-                  </>
-                ) : (
-                  <>
-                    <Save size={20} />
-                    <span>Save Changes</span>
-                  </>
-                )}
+                <Save size={16} />
+                {isLoading ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </form>
         </div>
       </div>
+      <style>{`
+        @keyframes modalFadeIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
     </div>
   );
 }

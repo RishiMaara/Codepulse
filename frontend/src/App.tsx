@@ -1,6 +1,5 @@
-// Clean slate — renders only the new interview platform
-import InterviewApp from './InterviewApp.jsx'
+import AppRoutes from './routes/AppRoutes'
 
 export default function App() {
-  return <InterviewApp />
+  return <AppRoutes />
 }

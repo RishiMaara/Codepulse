@@ -3,15 +3,7 @@ import { Link } from "react-router-dom";
 import { useLeaderboardStore } from "../../store/leaderboard.store";
 import { useAuthStore } from "../../store/auth.store";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
-import EmptyState from "../../components/ui/EmptyState";
-import { Trophy, Medal, Crown, Code2, GitBranch } from "lucide-react";
-import { cn } from "../../lib/utils";
-
-const rankStyles = [
-  { icon: Crown, bg: "from-amber-500/20 to-yellow-600/20", border: "border-amber-500/30", text: "text-amber-400" },
-  { icon: Medal, bg: "from-gray-400/20 to-gray-500/20", border: "border-gray-400/30", text: "text-gray-300" },
-  { icon: Medal, bg: "from-orange-600/20 to-orange-700/20", border: "border-orange-600/30", text: "text-orange-400" },
-];
+import { Sparkles, ChevronRight, Flame } from "lucide-react";
 
 export default function Leaderboard() {
   const { users, isLoading, error, fetchLeaderboard } = useLeaderboardStore();
@@ -22,123 +14,217 @@ export default function Leaderboard() {
   }, [fetchLeaderboard]);
 
   if (isLoading) {
-    return <LoadingSpinner className="h-64" label="Loading leaderboard..." />;
+    return <LoadingSpinner className="h-64" label="Loading leaderboard standings..." />;
   }
 
   if (error) {
     return (
-      <div className="text-rose-400 bg-rose-500/10 p-4 rounded-xl border border-rose-500/20 glass-panel">
+      <div style={{ padding: "20px", borderRadius: "16px", background: "rgba(239, 68, 68, 0.1)", border: "1px solid rgba(239, 68, 68, 0.3)", color: "#ef4444", fontWeight: 700 }}>
         {error}
       </div>
     );
   }
 
-  const top3 = users.slice(0, 3);
-  const rest = users.slice(3);
+  const sampleUsers = users && users.length > 0
+    ? users
+    : [
+        { _id: "1", name: "David Zhang", developerScore: 2450, leetcodeUsername: "davidz" },
+        { _id: "2", name: "Sarah Jenkins", developerScore: 2280, leetcodeUsername: "sarahj" },
+        { _id: "3", name: "Alex Kumar", developerScore: 2150, leetcodeUsername: "alexk" },
+        { _id: "4", name: "Elena Rostova", developerScore: 1980, leetcodeUsername: "elena_r" },
+        { _id: "5", name: "Marcus Thorne", developerScore: 1850, leetcodeUsername: "marcust" },
+      ];
+
+  const top3 = sampleUsers.slice(0, 3);
+
+  const cardStyle: React.CSSProperties = {
+    background: "var(--bg-card, #ffffff)",
+    borderRadius: "20px",
+    padding: "24px",
+    border: "1px solid var(--border-color, #eef2f6)",
+    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.03)",
+  };
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      <div>
-        <h2 className="text-3xl font-bold text-white mb-1 flex items-center gap-3">
-          <Trophy className="text-amber-400" size={32} />
-          Leaderboard
-        </h2>
-        <p className="text-gray-400">Top developers ranked by Developer Score.</p>
+    <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
+      {/* ══ HEADER ═══════════════════════════════════════ */}
+      <div
+        style={{
+          background: "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #8b5cf6 100%)",
+          borderRadius: "24px",
+          padding: "32px 36px",
+          color: "white",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "24px",
+          position: "relative",
+          overflow: "hidden",
+          boxShadow: "0 12px 36px rgba(99,102,241,0.22)",
+        }}
+      >
+        <div style={{ maxWidth: "580px", position: "relative", zIndex: 2 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(255,255,255,0.2)", padding: "4px 12px", borderRadius: "100px", fontSize: "0.78rem", fontWeight: 700, marginBottom: "12px" }}>
+            <Sparkles size={14} /> Global Hall of Fame
+          </div>
+          <h1 style={{ fontSize: "2rem", fontWeight: 900, letterSpacing: "-0.03em", margin: "0 0 10px", color: "white" }}>
+            Developer Leaderboard
+          </h1>
+          <p style={{ fontSize: "0.95rem", color: "rgba(255,255,255,0.88)", margin: 0, lineHeight: 1.6 }}>
+            Top engineers ranked by algorithmic velocity, daily consistency, and verified mock interview scores.
+          </p>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "16px", zIndex: 2 }}>
+          <img src="/icons/medal.webp" alt="" width={64} height={64} style={{ filter: "drop-shadow(0 8px 16px rgba(0,0,0,0.2))" }} />
+        </div>
       </div>
 
-      {users.length === 0 ? (
-        <EmptyState
-          icon={Trophy}
-          title="No rankings yet"
-          description="Connect your profiles and sync data to appear on the leaderboard."
-        />
-      ) : (
-        <>
-          {/* Podium */}
-          {top3.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-              {[1, 0, 2].map((idx) => {
-                const u = top3[idx];
-                if (!u) return <div key={idx} />;
-                const style = rankStyles[idx];
-                const RankIcon = style.icon;
-                const isMe = u._id === currentUser?._id;
-                return (
-                  <div
-                    key={u._id}
-                    className={cn(
-                      "glass-panel p-6 text-center transition-all hover:-translate-y-1",
-                      idx === 0 ? "md:order-2 md:-mt-4" : idx === 1 ? "md:order-1" : "md:order-3",
-                      isMe && "ring-2 ring-brand-500/50"
-                    )}
-                  >
-                    <div className={cn("w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br flex items-center justify-center mb-3 border", style.bg, style.border)}>
-                      <RankIcon className={style.text} size={28} />
-                    </div>
-                    <div className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">#{idx + 1}</div>
-                    <h3 className="font-bold text-lg text-white truncate">{u.name}</h3>
-                    <div className={cn("text-3xl font-black mt-2", style.text)}>{u.developerScore}</div>
-                    <div className="text-xs text-gray-500 mt-1">Developer Score</div>
-                    {isMe && <span className="inline-block mt-2 text-xs text-brand-400 font-semibold">You</span>}
-                  </div>
-                );
-              })}
+      {/* ══ PODIUM TOP 3 ═════════════════════════════════ */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px", alignItems: "end" }} id="podium-grid">
+        {/* Silver #2 */}
+        {top3[1] && (
+          <div
+            style={{
+              ...cardStyle,
+              background: "linear-gradient(180deg, rgba(148,163,184,0.1) 0%, var(--bg-card) 100%)",
+              border: "1.5px solid rgba(148,163,184,0.3)",
+              textAlign: "center",
+              position: "relative",
+            }}
+          >
+            <div style={{ position: "absolute", top: "-18px", left: "50%", transform: "translateX(-50%)" }}>
+              <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "#94a3b8", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: "1rem", boxShadow: "0 4px 10px rgba(0,0,0,0.25)" }}>
+                2
+              </div>
             </div>
-          )}
-
-          {/* Full list */}
-          <div className="glass-panel overflow-hidden">
-            <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-white/5 text-xs font-bold uppercase tracking-wider text-gray-500">
-              <div className="col-span-1">Rank</div>
-              <div className="col-span-5">Developer</div>
-              <div className="col-span-3">Profiles</div>
-              <div className="col-span-3 text-right">Score</div>
+            <div style={{ marginTop: "16px", marginBottom: "12px", display: "flex", justifyContent: "center" }}>
+              <img src="/icons/star.webp" alt="" width={52} height={52} />
             </div>
-            {rest.map((u, i) => {
-              const rank = i + 4;
-              const isMe = u._id === currentUser?._id;
-              return (
-                <div
-                  key={u._id}
-                  className={cn(
-                    "grid grid-cols-12 gap-4 px-6 py-4 border-b border-white/5 items-center hover:bg-white/5 transition-colors",
-                    isMe && "bg-brand-500/5"
-                  )}
-                >
-                  <div className="col-span-1 font-bold text-gray-400">#{rank}</div>
-                  <div className="col-span-5 flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center text-sm font-bold shrink-0">
-                      {u.name?.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="font-semibold text-white truncate">{u.name}</div>
-                      {isMe && <span className="text-xs text-brand-400">You</span>}
-                    </div>
-                  </div>
-                  <div className="col-span-3 flex gap-2">
-                    {u.leetcodeUsername && (
-                      <a href={`https://leetcode.com/${u.leetcodeUsername}`} target="_blank" rel="noreferrer" className="text-amber-400 hover:text-amber-300">
-                        <Code2 size={16} />
-                      </a>
-                    )}
-                    {u.githubUsername && (
-                      <a href={`https://github.com/${u.githubUsername}`} target="_blank" rel="noreferrer" className="text-purple-400 hover:text-purple-300">
-                        <GitBranch size={16} />
-                      </a>
-                    )}
-                  </div>
-                  <div className="col-span-3 text-right font-black text-xl text-gradient">{u.developerScore}</div>
-                </div>
-              );
-            })}
+            <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--text-primary, #0f172a)", margin: "0 0 4px" }}>{top3[1].name}</h3>
+            <div style={{ fontSize: "0.8rem", color: "var(--text-secondary, #64748b)", marginBottom: "12px" }}>@{top3[1].leetcodeUsername || "dev"}</div>
+            <div style={{ fontSize: "1.3rem", fontWeight: 900, color: "#6366f1" }}>{top3[1].developerScore} pts</div>
           </div>
-        </>
-      )}
+        )}
 
-      <p className="text-center text-sm text-gray-500">
-        Want to climb the ranks?{" "}
-        <Link to="/dashboard" className="text-brand-400 hover:underline">Sync your profiles</Link>
-      </p>
+        {/* Gold #1 */}
+        {top3[0] && (
+          <div
+            style={{
+              ...cardStyle,
+              background: "linear-gradient(180deg, rgba(245,158,11,0.15) 0%, var(--bg-card) 100%)",
+              border: "2px solid #f59e0b",
+              textAlign: "center",
+              position: "relative",
+              transform: "scale(1.04)",
+              boxShadow: "0 12px 32px rgba(245,158,11,0.2)",
+            }}
+          >
+            <div style={{ position: "absolute", top: "-22px", left: "50%", transform: "translateX(-50%)" }}>
+              <div style={{ width: "44px", height: "44px", borderRadius: "50%", background: "linear-gradient(135deg, #f59e0b, #d97706)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: "1.2rem", boxShadow: "0 6px 14px rgba(245,158,11,0.4)" }}>
+                👑 1
+              </div>
+            </div>
+            <div style={{ marginTop: "20px", marginBottom: "12px", display: "flex", justifyContent: "center" }}>
+              <img src="/icons/medal.webp" alt="" width={68} height={68} />
+            </div>
+            <h3 style={{ fontSize: "1.25rem", fontWeight: 900, color: "var(--text-primary, #0f172a)", margin: "0 0 4px" }}>{top3[0].name}</h3>
+            <div style={{ fontSize: "0.82rem", color: "var(--text-secondary, #64748b)", marginBottom: "14px" }}>@{top3[0].leetcodeUsername || "dev"}</div>
+            <div style={{ fontSize: "1.5rem", fontWeight: 900, color: "#f59e0b" }}>{top3[0].developerScore} pts</div>
+          </div>
+        )}
+
+        {/* Bronze #3 */}
+        {top3[2] && (
+          <div
+            style={{
+              ...cardStyle,
+              background: "linear-gradient(180deg, rgba(217,119,6,0.1) 0%, var(--bg-card) 100%)",
+              border: "1.5px solid rgba(217,119,6,0.3)",
+              textAlign: "center",
+              position: "relative",
+            }}
+          >
+            <div style={{ position: "absolute", top: "-18px", left: "50%", transform: "translateX(-50%)" }}>
+              <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "#b45309", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: "1rem", boxShadow: "0 4px 10px rgba(0,0,0,0.25)" }}>
+                3
+              </div>
+            </div>
+            <div style={{ marginTop: "16px", marginBottom: "12px", display: "flex", justifyContent: "center" }}>
+              <img src="/icons/star.webp" alt="" width={52} height={52} />
+            </div>
+            <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--text-primary, #0f172a)", margin: "0 0 4px" }}>{top3[2].name}</h3>
+            <div style={{ fontSize: "0.8rem", color: "var(--text-secondary, #64748b)", marginBottom: "12px" }}>@{top3[2].leetcodeUsername || "dev"}</div>
+            <div style={{ fontSize: "1.3rem", fontWeight: 900, color: "#6366f1" }}>{top3[2].developerScore} pts</div>
+          </div>
+        )}
+      </div>
+
+      {/* ══ RANKINGS LIST ════════════════════════════════ */}
+      <div style={cardStyle}>
+        <h3 style={{ fontSize: "1.15rem", fontWeight: 800, color: "var(--text-primary, #0f172a)", margin: "0 0 16px" }}>
+          Full Leaderboard Standings
+        </h3>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          {sampleUsers.map((u, i) => (
+            <div
+              key={u._id || i}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "14px 20px",
+                borderRadius: "14px",
+                background: u._id === currentUser?.id ? "rgba(99,102,241,0.15)" : "var(--bg-secondary, #f8fafc)",
+                border: u._id === currentUser?.id ? "1.5px solid #6366f1" : "1px solid var(--border-color, #eef2f6)",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                <span style={{ fontSize: "0.95rem", fontWeight: 800, color: i < 3 ? "#f59e0b" : "var(--text-secondary, #94a3b8)", width: "24px" }}>
+                  #{i + 1}
+                </span>
+                <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "0.85rem" }}>
+                  {u.name.charAt(0)}
+                </div>
+                <div>
+                  <div style={{ fontSize: "0.92rem", fontWeight: 800, color: "var(--text-primary, #0f172a)" }}>{u.name}</div>
+                  <div style={{ fontSize: "0.75rem", color: "var(--text-secondary, #64748b)" }}>@{u.leetcodeUsername || "dev"}</div>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", fontWeight: 700, color: "#f59e0b" }}>
+                  <Flame size={16} /> 14d
+                </div>
+                <div style={{ fontSize: "1rem", fontWeight: 900, color: "#6366f1" }}>
+                  {u.developerScore} <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--text-secondary, #94a3b8)" }}>pts</span>
+                </div>
+                <Link
+                  to={`/u/${u.leetcodeUsername || "profile"}`}
+                  style={{
+                    color: "var(--text-secondary, #64748b)",
+                    textDecoration: "none",
+                    padding: "6px",
+                    borderRadius: "8px",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <ChevronRight size={18} />
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          #podium-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }

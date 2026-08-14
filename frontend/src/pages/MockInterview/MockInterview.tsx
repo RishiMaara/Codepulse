@@ -1,24 +1,31 @@
 import { useEffect } from "react";
 import { useInterviewStore } from "../../store/interview.store";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
-import EmptyState from "../../components/ui/EmptyState";
 import {
-  Mic, ChevronLeft, ChevronRight, Lightbulb, CheckCircle2,
-  RotateCcw, Play, Eye, EyeOff
+  ChevronLeft, ChevronRight, Lightbulb, CheckCircle2, RotateCcw
 } from "lucide-react";
-import { cn } from "../../lib/utils";
 
-const difficultyColors: Record<string, string> = {
-  Easy: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
-  Medium: "text-amber-400 bg-amber-500/10 border-amber-500/20",
-  Hard: "text-rose-400 bg-rose-500/10 border-rose-500/20",
-  Behavioral: "text-purple-400 bg-purple-500/10 border-purple-500/20",
+const difficultyBadges: Record<string, { bg: string; text: string; border: string }> = {
+  Easy: { bg: "rgba(16, 185, 129, 0.12)", text: "#10b981", border: "rgba(16, 185, 129, 0.3)" },
+  Medium: { bg: "rgba(245, 158, 11, 0.12)", text: "#f59e0b", border: "rgba(245, 158, 11, 0.3)" },
+  Hard: { bg: "rgba(239, 68, 68, 0.12)", text: "#ef4444", border: "rgba(239, 68, 68, 0.3)" },
+  Behavioral: { bg: "rgba(124, 58, 237, 0.12)", text: "#7c3aed", border: "rgba(124, 58, 237, 0.3)" },
 };
 
 export default function MockInterview() {
   const {
-    questions, currentIndex, showHint, completed, isLoading, error,
-    fetchQuestions, nextQuestion, prevQuestion, toggleHint, markComplete, reset
+    questions,
+    currentIndex,
+    showHint,
+    completed,
+    isLoading,
+    error,
+    fetchQuestions,
+    nextQuestion,
+    prevQuestion,
+    toggleHint,
+    markComplete,
+    reset,
   } = useInterviewStore();
 
   useEffect(() => {
@@ -26,12 +33,12 @@ export default function MockInterview() {
   }, []);
 
   if (isLoading) {
-    return <LoadingSpinner className="h-64" label="Preparing your interview session..." />;
+    return <LoadingSpinner className="h-64" label="Generating customized interview questions..." />;
   }
 
   if (error) {
     return (
-      <div className="text-rose-400 bg-rose-500/10 p-4 rounded-xl border border-rose-500/20 glass-panel">
+      <div style={{ padding: "20px", borderRadius: "16px", background: "rgba(239, 68, 68, 0.1)", border: "1px solid rgba(239, 68, 68, 0.3)", color: "#ef4444", fontWeight: 700 }}>
         {error}
       </div>
     );
@@ -39,150 +46,230 @@ export default function MockInterview() {
 
   if (!questions.length) {
     return (
-      <EmptyState
-        icon={Mic}
-        title="No questions available"
-        description="Sync your LeetCode profile first so we can tailor questions to your weak areas."
-        action={
-          <button onClick={fetchQuestions} className="px-6 py-3 bg-brand-600 hover:bg-brand-500 rounded-xl font-semibold transition-colors">
-            Try Again
-          </button>
-        }
-      />
+      <div style={{ background: "var(--bg-card, #ffffff)", padding: "48px 32px", borderRadius: "24px", textAlign: "center", border: "1px solid var(--border-color, #eef2f6)", boxShadow: "0 4px 24px rgba(0,0,0,0.03)" }}>
+        <img src="/icons/play.webp" alt="" width={64} height={64} style={{ marginBottom: "16px" }} />
+        <h3 style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--text-primary, #0f172a)", marginBottom: "8px" }}>No Questions Generated Yet</h3>
+        <p style={{ fontSize: "0.9rem", color: "var(--text-secondary, #64748b)", maxWidth: "420px", margin: "0 auto 24px" }}>
+          Connect and sync your coding profile to unlock AI-tailored mock interview sessions.
+        </p>
+        <button
+          onClick={fetchQuestions}
+          style={{
+            padding: "12px 24px",
+            borderRadius: "12px",
+            background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+            color: "white",
+            fontWeight: 800,
+            border: "none",
+            cursor: "pointer",
+            boxShadow: "0 4px 16px rgba(99,102,241,0.35)",
+          }}
+        >
+          Generate Questions
+        </button>
+      </div>
     );
   }
 
   const current = questions[currentIndex];
   const progress = ((completed.size / questions.length) * 100).toFixed(0);
-  const diffStyle = difficultyColors[current.difficulty] ?? difficultyColors.Medium;
+  const diffBadge = difficultyBadges[current.difficulty] || difficultyBadges.Medium;
 
   return (
-    <div className="space-y-8 animate-fade-in max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-3xl font-bold text-white flex items-center gap-3">
-            <div className="p-2.5 bg-brand-500/10 rounded-xl border border-brand-500/20">
-              <Mic className="text-brand-400" size={24} />
-            </div>
-            Mock Interview
-          </h2>
-          <p className="text-gray-400 mt-1">Practice questions tailored to your weak topics.</p>
+    <div style={{ maxWidth: "900px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "24px" }}>
+      {/* ══ SESSION HEADER ═══════════════════════════ */}
+      <div
+        style={{
+          background: "var(--bg-card, #ffffff)",
+          borderRadius: "20px",
+          padding: "24px 28px",
+          border: "1px solid var(--border-color, #eef2f6)",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "16px",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+          <img src="/icons/play.webp" alt="" width={42} height={42} />
+          <div>
+            <h2 style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--text-primary, #0f172a)", margin: 0 }}>
+              Live AI Mock Session
+            </h2>
+            <p style={{ fontSize: "0.82rem", color: "var(--text-secondary, #64748b)", margin: 0 }}>
+              Question {currentIndex + 1} of {questions.length} • {completed.size} Completed
+            </p>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
+
+        {/* Progress Bar */}
+        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+          <div style={{ width: "160px", height: "8px", borderRadius: "100px", background: "var(--bg-secondary, #f1f5f9)", overflow: "hidden" }}>
+            <div style={{ width: `${progress}%`, height: "100%", borderRadius: "100px", background: "linear-gradient(90deg, #6366f1, #10b981)", transition: "width 0.3s ease" }} />
+          </div>
+          <span style={{ fontSize: "0.85rem", fontWeight: 800, color: "var(--text-primary, #0f172a)" }}>{progress}%</span>
           <button
-            onClick={() => { reset(); fetchQuestions(); }}
-            className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors text-sm font-medium"
+            onClick={reset}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "8px 12px",
+              borderRadius: "10px",
+              background: "var(--bg-secondary, #f8fafc)",
+              border: "1px solid var(--border-color, #e2e8f0)",
+              color: "var(--text-secondary, #64748b)",
+              fontSize: "0.8rem",
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
           >
-            <RotateCcw size={16} /> New Session
+            <RotateCcw size={14} /> Reset
           </button>
         </div>
       </div>
 
-      {/* Progress */}
-      <div className="glass-panel p-4">
-        <div className="flex justify-between text-sm mb-2">
-          <span className="text-gray-400">Progress</span>
-          <span className="text-brand-400 font-semibold">{completed.size}/{questions.length} completed ({progress}%)</span>
-        </div>
-        <div className="w-full bg-dark-100 rounded-full h-2 overflow-hidden">
-          <div
-            className="h-full bg-gradient-to-r from-brand-600 to-purple-600 rounded-full transition-all duration-500"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-        <div className="flex gap-1.5 mt-3 flex-wrap">
-          {questions.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => useInterviewStore.setState({ currentIndex: i, showHint: false })}
-              className={cn(
-                "w-8 h-8 rounded-lg text-xs font-bold transition-all border",
-                i === currentIndex
-                  ? "bg-brand-500/20 border-brand-500/50 text-brand-400"
-                  : completed.has(i)
-                  ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
-                  : "bg-dark-100 border-white/5 text-gray-500 hover:border-white/20"
-              )}
-            >
-              {i + 1}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Question Card */}
-      <div className="glass-panel p-8 md:p-10 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-48 h-48 bg-brand-500/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="flex items-center gap-3 mb-6 relative z-10">
-          <span className="text-sm font-bold text-gray-500">Q{currentIndex + 1}</span>
-          <span className={cn("text-xs font-bold px-3 py-1 rounded-lg border", diffStyle)}>
+      {/* ══ QUESTION CARD ════════════════════════════════ */}
+      <div
+        style={{
+          background: "var(--bg-card, #ffffff)",
+          borderRadius: "24px",
+          padding: "36px",
+          border: "1px solid var(--border-color, #eef2f6)",
+          boxShadow: "0 6px 24px rgba(0,0,0,0.03)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
+          <span
+            style={{
+              padding: "4px 12px",
+              borderRadius: "100px",
+              fontSize: "0.75rem",
+              fontWeight: 800,
+              background: diffBadge.bg,
+              color: diffBadge.text,
+              border: `1px solid ${diffBadge.border}`,
+            }}
+          >
             {current.difficulty}
           </span>
-          <span className="text-xs text-gray-500 bg-dark-100 px-3 py-1 rounded-lg border border-white/5">
-            {current.topic}
+          <span style={{ padding: "4px 12px", borderRadius: "100px", fontSize: "0.75rem", fontWeight: 700, background: "var(--bg-secondary, #f1f5f9)", color: "var(--text-secondary, #475569)" }}>
+            {current.topic || "Algorithmic Analysis"}
           </span>
         </div>
 
-        <h3 className="text-2xl md:text-3xl font-bold text-white leading-relaxed mb-8 relative z-10">
+        <h3 style={{ fontSize: "1.35rem", fontWeight: 800, color: "var(--text-primary, #0f172a)", letterSpacing: "-0.02em", marginBottom: "16px", lineHeight: 1.45 }}>
           {current.question}
         </h3>
 
-        {/* Hint */}
-        <div className="relative z-10 mb-8">
-          <button
-            onClick={toggleHint}
-            className="flex items-center gap-2 text-sm font-medium text-amber-400 hover:text-amber-300 transition-colors mb-3"
-          >
-            {showHint ? <EyeOff size={16} /> : <Eye size={16} />}
-            {showHint ? "Hide Hint" : "Show Hint"}
-          </button>
-          {showHint && (
-            <div className="flex items-start gap-3 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl animate-fade-in">
-              <Lightbulb className="text-amber-400 shrink-0 mt-0.5" size={18} />
-              <p className="text-amber-200/90 text-sm leading-relaxed">{current.hint}</p>
-            </div>
-          )}
-        </div>
-
-        {/* Timer simulation */}
-        <div className="flex items-center gap-2 text-gray-500 text-sm mb-8 relative z-10">
-          <Play size={14} />
-          <span>Think out loud — explain your approach before coding.</span>
-        </div>
-
-        {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-3 relative z-10">
-          <button
-            onClick={() => markComplete(currentIndex)}
-            disabled={completed.has(currentIndex)}
-            className={cn(
-              "flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold transition-all",
-              completed.has(currentIndex)
-                ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 cursor-default"
-                : "bg-emerald-600 hover:bg-emerald-500 text-white"
+        {/* Hints */}
+        {current.hint && (
+          <div style={{ marginBottom: "24px" }}>
+            <button
+              onClick={toggleHint}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "8px 14px",
+                borderRadius: "10px",
+                background: "rgba(245, 158, 11, 0.12)",
+                border: "1px solid rgba(245, 158, 11, 0.3)",
+                color: "#f59e0b",
+                fontSize: "0.82rem",
+                fontWeight: 800,
+                cursor: "pointer",
+              }}
+            >
+              <Lightbulb size={15} /> {showHint ? "Hide AI Hint" : "Show AI Hint"}
+            </button>
+            {showHint && (
+              <div
+                style={{
+                  marginTop: "12px",
+                  padding: "16px 20px",
+                  borderRadius: "14px",
+                  background: "rgba(245, 158, 11, 0.08)",
+                  border: "1px dashed rgba(245, 158, 11, 0.35)",
+                  fontSize: "0.88rem",
+                  color: "var(--text-primary, #78350f)",
+                  lineHeight: 1.6,
+                }}
+              >
+                💡 <strong>Hint:</strong> {current.hint}
+              </div>
             )}
-          >
-            <CheckCircle2 size={18} />
-            {completed.has(currentIndex) ? "Completed" : "Mark as Done"}
-          </button>
-          <div className="flex gap-3">
+          </div>
+        )}
+
+        {/* Action controls */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "24px", borderTop: "1px solid var(--border-color, #f1f5f9)", flexWrap: "wrap", gap: "16px" }}>
+          <div style={{ display: "flex", gap: "10px" }}>
             <button
               onClick={prevQuestion}
               disabled={currentIndex === 0}
-              className="flex items-center gap-1 px-5 py-3.5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors disabled:opacity-30"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                padding: "10px 18px",
+                borderRadius: "12px",
+                background: "var(--bg-secondary, #f8fafc)",
+                border: "1.5px solid var(--border-color, #e2e8f0)",
+                color: "var(--text-primary, #475569)",
+                fontSize: "0.85rem",
+                fontWeight: 800,
+                cursor: currentIndex === 0 ? "not-allowed" : "pointer",
+                opacity: currentIndex === 0 ? 0.5 : 1,
+              }}
             >
-              <ChevronLeft size={18} /> Prev
+              <ChevronLeft size={16} /> Previous
             </button>
             <button
               onClick={nextQuestion}
               disabled={currentIndex === questions.length - 1}
-              className="flex items-center gap-1 px-5 py-3.5 bg-brand-600 hover:bg-brand-500 rounded-xl font-semibold transition-colors disabled:opacity-30"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                padding: "10px 18px",
+                borderRadius: "12px",
+                background: "var(--bg-secondary, #f8fafc)",
+                border: "1.5px solid var(--border-color, #e2e8f0)",
+                color: "var(--text-primary, #475569)",
+                fontSize: "0.85rem",
+                fontWeight: 800,
+                cursor: currentIndex === questions.length - 1 ? "not-allowed" : "pointer",
+                opacity: currentIndex === questions.length - 1 ? 0.5 : 1,
+              }}
             >
-              Next <ChevronRight size={18} />
+              Next <ChevronRight size={16} />
             </button>
           </div>
+
+          <button
+            onClick={() => markComplete(currentIndex)}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "10px 22px",
+              borderRadius: "12px",
+              background: completed.has(currentIndex) ? "#10b981" : "linear-gradient(135deg, #6366f1, #8b5cf6)",
+              color: "white",
+              fontSize: "0.85rem",
+              fontWeight: 800,
+              border: "none",
+              cursor: "pointer",
+              boxShadow: "0 4px 14px rgba(99,102,241,0.35)",
+              transition: "all 0.2s ease",
+            }}
+          >
+            <CheckCircle2 size={16} />
+            {completed.has(currentIndex) ? "Marked as Solved ✓" : "Mark as Complete"}
+          </button>
         </div>
       </div>
     </div>
